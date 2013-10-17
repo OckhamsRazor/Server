@@ -284,7 +284,7 @@ public class Server {
     }
     
     public void rmUser (Client quitter) {
-        quitter.closeConnection();
+//        quitter.closeConnection();
         
         for (Chatroom room : quitter.getRooms()) {
             room.rmuser(quitter);
@@ -292,6 +292,10 @@ public class Server {
         _name_user.remove(quitter.getName());
         _users.remove(quitter.getName());
         _clients.remove(quitter);
+        
+        for (Client c : _clients) {
+            c.send("\001SB_LOGOUT\000"+quitter.getName()+"\000\004");
+        }
     }
     
     public boolean sendReq(Client sender, String receiverID, String filename, String filesize){
