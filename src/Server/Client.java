@@ -294,7 +294,20 @@ public class Client {
                             
                         }
                         break;
-                        
+                    case "\001SPEAK":
+                        assert(tokens.length == 5);
+                        System.out.println("C_SPEAK");
+                        if(!_mainServer.sendSpeak(this,tokens[2],tokens[3],tokens[4])){
+                            
+                        }
+                        break;
+                    case "\001SPEAK_ACK":
+                        assert(tokens.length == 5);
+                        System.out.println("C_SPEAK_ACK");
+                        if(!_mainServer.sendSpeakAck(this,tokens[2],tokens[3],tokens[4])){
+                            
+                        }
+                        break;
                     default:
                         break;
                 }

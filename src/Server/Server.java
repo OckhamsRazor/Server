@@ -221,6 +221,7 @@ public class Server {
         receiver.send(userlist);
     }
     
+       
     public void loginInform(Client login) {
         for (Client c : getClients()) {
             if (!c.getName().equals(login.getName())) {
@@ -314,6 +315,22 @@ public class Server {
         if (sender == null) return false;
         System.out.println("sendReply_N_Success");
         sender.send("\001FS_REP_N\000"+receiver.getName()+"\000" + "\000\004");
+        return true;
+    }
+    
+    public boolean sendSpeak(Client sender,  String receiverID, String senderIP, String portNo)
+    {
+        Client receiver = _name_user.get(receiverID);
+        if(receiver==null) return false;
+        receiver.send("\001SPEAK\000"+sender.getName()+"\000"+senderIP+"\000"+portNo+"\000\004");
+        return true;
+    }
+    
+    public boolean sendSpeakAck(Client sender,  String receiverID, String senderIP, String portNo)
+    {
+        Client receiver = _name_user.get(receiverID);
+        if(receiver==null) return false;
+        receiver.send("\001SPEAK_ACK\000"+sender.getName()+"\000"+senderIP+"\000"+portNo+"\000\004");
         return true;
     }
 }
