@@ -179,7 +179,9 @@ public class Client {
                 String sender, receiver, content, account, passwd;
                 switch(tokens[0]) {
                     case "\001LOGIN": // for login again
+                        System.out.println("a");
                          send( "\001LOGINACK\000\004" );
+                        System.out.println("b"); 
                         _mainServer.sendUserlist(this);
                         break;
                         
@@ -272,7 +274,7 @@ public class Client {
                         
                     case "\001LOGOUT": // 001-004
                         assert (tokens.length == 2);
-                        _mainServer.logoutUser(this);
+                 //       _mainServer.logoutUser(this);  // should be revised
                         break;
                         
                     case "\001FS_REQ":
