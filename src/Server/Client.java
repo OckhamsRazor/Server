@@ -128,7 +128,7 @@ public class Client {
         send( "\001LOGINACK\000\004" ); // send username ACK
         _mainServer.sendUserlist(this);
         _mainServer.loginInform(this);
-        send( "\001MSG_GET\000Server\0000\000Welcome to the chatroom\000\004");
+  //      send( "\001MSG_GET\000Server\0000\000Welcome to the chatroom\000\004");
         _mainServer.getNameUsers().put(_userName, this);
 
 //        for( Client c: (_mainServer.getClients()) ) { // send the current userlist to the new user
@@ -178,6 +178,11 @@ public class Client {
                 int room, newStat;
                 String sender, receiver, content, account, passwd;
                 switch(tokens[0]) {
+                    case "\001LOGIN": // for login again
+                         send( "\001LOGINACK\000\004" );
+                        _mainServer.sendUserlist(this);
+                        break;
+                        
                     case "\001NEWUSER": // 001-account-passwd-004
                         assert (tokens.length == 4);
                             sendError("Please logout first!!");
