@@ -330,7 +330,7 @@ public class Server {
     {
         Client receiver = _name_user.get(receiverID);
         if(receiver==null) return false;
-        receiver.send("\001SPEAK_ACK\000"+sender.getName()+"\000"+senderIP+"\000"+portNo+"\000\004");
+        receiver.send("\001SPEAK_ACK\000"+senderIP+"\000"+portNo+"\000\004");
         return true;
     }
 }
