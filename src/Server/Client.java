@@ -313,6 +313,20 @@ public class Client {
                             
                         }
                         break;
+                    case "\001VISUAL":
+                        assert(tokens.length == 4);
+                        System.out.println("C_VISUAL");
+                        if(!_mainServer.sendVisual(this,tokens[1],tokens[2])){
+                            
+                        }
+                        break;
+                    case "\001VISUAL_ACK":
+                        assert(tokens.length == 4);
+                        System.out.println("C_VISUAL_ACK");
+                        if(!_mainServer.sendVisualAck(this,tokens[1],tokens[2])){
+                            
+                        }
+                        break;
                     default:
                         break;
                 }

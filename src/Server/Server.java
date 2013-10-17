@@ -333,4 +333,19 @@ public class Server {
         receiver.send("\001SPEAK_ACK\000"+senderIP+"\000"+portNo+"\000\004");
         return true;
     }
+    public boolean sendVisual(Client sender,  String receiverID, String url)
+    {
+        Client receiver = _name_user.get(receiverID);
+        if(receiver==null) return false;
+        receiver.send("\001VISUAL\000"+sender.getName()+"\000"+url+"\000\004");
+        return true;
+    }
+    
+    public boolean sendVisualAck(Client sender,  String receiverID, String url)
+    {
+        Client receiver = _name_user.get(receiverID);
+        if(receiver==null) return false;
+        receiver.send("\001VISUAL_ACK\000"+url+"\000\004");
+        return true;
+    }
 }
