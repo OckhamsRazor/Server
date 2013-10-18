@@ -59,6 +59,9 @@ public class Chatroom {
             if (!noSend.contains(c.getName())) {
                 c.send("\001MSG_GET\000"+sender.getName()+"\000" + Integer.toString(roomID) + "\000" + msg + "\000\004");
             }
+            else {
+                System.out.println("no send to " + c.getName());
+            }
         }
     }
     

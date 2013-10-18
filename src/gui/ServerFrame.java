@@ -5,6 +5,8 @@
 package gui;
 
 import Server.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 /**
  *
  * @author OckhamsRazor
@@ -16,7 +18,7 @@ public class ServerFrame extends javax.swing.JFrame {
     public ServerFrame() {
         initComponents();
         setVisible(true);
-        _server = new Server();
+        _server = new Server(this);
     }
 
     /**
@@ -43,6 +45,14 @@ public class ServerFrame extends javax.swing.JFrame {
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Broadcast", "Hall" }));
 
+        jTextPane1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextPane1KeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextPane1KeyReleased(evt);
+            }
+        });
         jScrollPane4.setViewportView(jTextPane1);
 
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "User List", "Banned User List", "Restricted Words", "Groups", "Rooms" }));
@@ -92,11 +102,32 @@ public class ServerFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jTextPane1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyChar( )== '\n'){
+            inputText = jTextPane1.getText();
+            System.out.println(inputText);
+            System.out.println(_server == null);
+            
+            _server.broadCast(inputText);
+        }
+    }//GEN-LAST:event_jTextPane1KeyPressed
+
+    private void jTextPane1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextPane1KeyReleased
+        // TODO add your handling code here:
+        if(evt.getKeyChar() == '\n' ){
+            jTextPane1.setText(null);
+        }
+    }//GEN-LAST:event_jTextPane1KeyReleased
+
+    
     /**
      * @param args the command line arguments
      */
     
-    private static Server _server;
+    public static Server _server;
+    private String inputText;
+    private StyledDocument doc;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;

@@ -6,7 +6,7 @@ package Server;
 import java.io.*;
 import java.util.*;
 import java.net.*;
-//import gui.*;
+import gui.*;
 
 /**
  *
@@ -23,11 +23,13 @@ public class Server {
     private HashSet<String> _bannedUsers;
     private HashSet<String> _restrictedWords;
     private HashMap<String, String> _account_password;
+    
+    private ServerFrame _serverFrame;
 //    private HashMap< String, HashSet<Chatroom> > _name_rooms;
     private int _id; // cumulated client id
     private int _roomId; // cumulated room id
     
-    public Server() {
+    public Server(ServerFrame sf) {
         _clients = new ArrayList<Client>();
         _rooms = new ArrayList<Chatroom>();
         _users = new HashSet<String>();
@@ -37,6 +39,9 @@ public class Server {
         _restrictedWords = new HashSet<String>();
         _account_password = new HashMap<String, String>();
 //        _name_rooms = new HashMap< String, HashSet<Chatroom> >();
+        
+        _serverFrame = sf;
+        sf._server = this;
         
         _id = 0;
         _roomId = -1;
@@ -199,12 +204,22 @@ public class Server {
         
     }
     
+    public void broadCast(String msg) {
+        for (Client c : _clients) {
+            if (c.getName() != null) {
+                for (Chatroom room : c.getRooms()) {
+                    c.send("\001MSG_GET\000Server\000"+Integer.toString(room.getID())+"\000\002m\003"+msg+"\000\004");
+                }
+            }
+        }
+    }
+    
     public void sendUserlist(Client receiver) {
-        String userlist = "\001USERLIST\000" + Integer.toString(getClients().size());
+        String userlist = "\001USERLIST\000" + Integer.toString(getNameUsers().size());
         for (Client c : getClients()) {
-//            if (!c.getName().equals(receiver.getName())) {
+            if (c.getName() != null) {
                 userlist += ("\000" + c.getName() + "\000" + Integer.toString(c.getStatus()));
-//            }
+            }
         }
         userlist += "\000\004";
         receiver.send(userlist);
@@ -213,9 +228,9 @@ public class Server {
     public void sendRoomUserlist(Client receiver, Chatroom room) {
         String userlist = "\001RM_USERLIST\000" + Integer.toString(room.getID()) + "\000" + Integer.toString(room.roomCli.size());
         for (Client c : room.roomCli) {
-//            if (!c.getName().equals(receiver.getName())) {
+            if (c.getName() != null) {
                 userlist += ("\000" + c.getName() + "\000" + Integer.toString(c.getStatus()));
-//            }
+            }
         }
         userlist += "\000\004";
         receiver.send(userlist);
@@ -223,8 +238,8 @@ public class Server {
     
        
     public void loginInform(Client login) {
-        for (Client c : getClients()) {
-            if (!c.getName().equals(login.getName())) {
+        for (Client c : _clients) {
+            if (c.getName() != null && !c.getName().equals(login.getName())) {
                 c.send("\001SB_LOGIN\000"+login.getName()+"\000\004");
             }
         }
@@ -235,7 +250,7 @@ public class Server {
         assert room != null;
         
         for (Client c : room.roomCli) {
-            if (!c.getName().equals(enterRoom.getName())) {
+            if (c.getName() != null && !c.getName().equals(enterRoom.getName())) {
                 c.send("\001SB_IN\000"+enterRoom.getName()+"\000"+Integer.toString(roomID)+"\000\004");
             }
         }
@@ -246,7 +261,7 @@ public class Server {
         assert room != null;
         
         for (Client c : room.roomCli) {
-            if (!c.getName().equals(leaveRoom.getName())) {
+            if (c.getName() != null && !c.getName().equals(leaveRoom.getName())) {
                 c.send("\001SB_OUT\000"+leaveRoom.getName()+"\000"+Integer.toString(roomID)+"\000\004");
             }
         }
@@ -285,16 +300,18 @@ public class Server {
     
     public void rmUser (Client quitter) {
 //        quitter.closeConnection();
-        
+        HashSet<Chatroom> debug = quitter.getRooms();
+        System.out.println(debug.size());
         for (Chatroom room : quitter.getRooms()) {
             room.rmuser(quitter);
         }
         _name_user.remove(quitter.getName());
-        _users.remove(quitter.getName());
+//        _users.remove(quitter.getName());
         _clients.remove(quitter);
         
         for (Client c : _clients) {
-            c.send("\001SB_LOGOUT\000"+quitter.getName()+"\000\004");
+            if (c.getName() != null)
+                c.send("\001SB_LOGOUT\000"+quitter.getName()+"\000\004");
         }
     }
     

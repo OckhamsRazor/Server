@@ -90,14 +90,13 @@ public class Client {
                     assert tokens.length == 4; // 001-account-passwd-004
                     System.out.println("login");
                     
-                    if( _mainServer.getUsers().contains(tokens[1]) ) {
+                    if( _mainServer.getUsers().contains(tokens[1]) && !_mainServer.getNameUsers().containsKey(tokens[1]) ) {
                         System.out.println("has name");
                         String passwd = _mainServer.getPasswd(tokens[1]);
                         if (passwd != null && passwd.equals(tokens[2])) {
                             System.out.println("login success");
                             break; // TODO
                         }
-                        break;
                     }
                     
                     System.out.println("login failed");
@@ -126,10 +125,11 @@ public class Client {
         //_passwd = tokens[2];
         System.out.println(_userName);
         send( "\001LOGINACK\000\004" ); // send username ACK
+        _mainServer.getNameUsers().put(_userName, this);
         _mainServer.sendUserlist(this);
         _mainServer.loginInform(this);
   //      send( "\001MSG_GET\000Server\0000\000Welcome to the chatroom\000\004");
-        _mainServer.getNameUsers().put(_userName, this);
+        
 
 //        for( Client c: (_mainServer.getClients()) ) { // send the current userlist to the new user
 //            if (c!=this) send("/q+ "+ c._userName+" " + c._userColor);
@@ -179,13 +179,51 @@ public class Client {
                 String sender, receiver, content, account, passwd;
                 switch(tokens[0]) {
                     case "\001LOGIN": // for login again
-                         send( "\001LOGINACK\000\004" );
-                        _mainServer.sendUserlist(this);
+                        assert tokens.length == 4; // 001-account-passwd-004
+                        System.out.println("login");
+                    
+                        if( _mainServer.getUsers().contains(tokens[1]) && !_mainServer.getNameUsers().containsKey(tokens[1]) ) {
+                            System.out.println("has name");
+                            passwd = _mainServer.getPasswd(tokens[1]);
+                            if (passwd != null && passwd.equals(tokens[2])) {
+                                System.out.println("login success");
+                                send( "\001LOGINACK\000\004" );
+                                _userName = tokens[1];
+                                _mainServer.getClients().add(this);
+                                _mainServer.getNameUsers().put(_userName, this);
+                                _mainServer.getRooms().get(0).adduser(this);
+                                _mainServer.sendUserlist(this);
+                                _mainServer.loginInform(this);
+                                return;
+                            }
+                        }
+                    
+                        System.out.println("login failed");
+                        System.out.println(tokens[1]);
+                        System.out.println(tokens[2]);
+                        sendError("Invalid Username or Password!!");
                         break;
                         
                     case "\001NEWUSER": // 001-account-passwd-004
-                        assert (tokens.length == 4);
-                            sendError("Please logout first!!");
+                        assert tokens.length == 4; // login-account-passwd-\004
+                        System.out.println("new user");
+                    
+                        if( _mainServer.getUsers().contains(tokens[1]) ) {
+//                        _out.writeUTF("Name already taken! Please use another name.");
+                            sendError("Name already taken! Please use another name.");
+                        }
+                        else {
+                            _mainServer.createUser(tokens[1], tokens[2]);
+                        
+                            send( "\001LOGINACK\000\004" );
+                        
+                            _userName = tokens[1];
+                            _mainServer.getClients().add(this);
+                            _mainServer.getNameUsers().put(_userName, this);
+                            _mainServer.getRooms().get(0).adduser(this);
+                            _mainServer.sendUserlist(this);
+                            _mainServer.loginInform(this);
+                        }
                         break;
                     
                     case "\001NEWROOM": // 001-name-clientRoomNO-004
@@ -272,7 +310,7 @@ public class Client {
                         
                     case "\001LOGOUT": // 001-004
                         assert (tokens.length == 2);
-                 //       _mainServer.logoutUser(this);  // should be revised
+                        _mainServer.logoutUser(this);  // should be revised
                         break;
                         
                     case "\001FS_REQ":
